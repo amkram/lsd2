@@ -63,13 +63,16 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
         cout<<"Reading the tree ... "<<endl;
         opt->init();
         Node** nodes=tree2data(*(io->inTree),opt,s);
+        cout<<"built tree\n";
         readInputDate(io, opt,nodes,constraintConsistent);
+        cout << "read dates\n";
         if (!constraintConsistent){
             ostringstream oss;
             oss<<"- There's conflict in the input temporal constraints.\n";
             opt->warningMessage.push_back(oss.str());
         }
         computeSuc_polytomy(opt,nodes);
+        cout << "polytomies\n";
         double minB = nodes[(!opt->rooted)+1]->B;
         if (opt->minblen < 0){
             for (int i=2; i <= opt->nbBranches; i++){
@@ -97,6 +100,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
             (*(io->inBootstrapTree)).clear();
             (*(io->inBootstrapTree)).seekg(pos);
         }
+        cout << "1\n";
         if (diffTopology || !(io->inBootstrapTree)){
             if (opt->rooted && opt->estimate_root!="" && opt->estimate_root!="k"){
                 rooted2unrooted(opt,nodes);
@@ -162,7 +166,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                 output(br,y,io, opt,nodes,*(io->outResult),*(io->outTree2),*(io->outTree3),r,diffTopology);
             }
             else if (opt->estimate_root=="k"){
-                cout<<"Estimating the root position on the branch defined by given outgroups ..."<<endl;
+                cout<<"activeset Estimating the root position on the branch defined by given outgroups ..."<<endl;
                 vector<int>::iterator iter=nodes[0]->suc.begin();
                 int s1=(*iter);
                 iter++;
@@ -170,6 +174,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                 br=nodes[s1]->B+nodes[s2]->B;
                 nodes[s1]->V=variance(opt,br);
                 nodes[s2]->V=nodes[s1]->V;
+                cout<<"starting activeset"<<endl;
                 constraintConsistent = without_constraint_active_set_lambda_multirates(true,br,opt,nodes,true);
                 if (constraintConsistent){
                     output(br,y,io, opt,nodes,*(io->outResult),*(io->outTree2),*(io->outTree3),r,diffTopology);
@@ -223,7 +228,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                     else if (opt->estimate_root=="k"){
                         
                         if (constraintConsistent){
-                            cout<<"Estimating the root position on the branch defined by given outgroups ..."<<endl;
+                            cout<<"QPD Estimating the root position on the branch defined by given outgroups ..."<<endl;
                             vector<int>::iterator iter=nodes[0]->suc.begin();
                             int s1=(*iter);
                             iter++;
@@ -231,6 +236,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                             br=nodes[s1]->B+nodes[s2]->B;
                             nodes[s1]->V=variance(opt,br);
                             nodes[s2]->V=nodes[s1]->V;
+                            cout << "starting QPD\n";
                             constraintConsistent = with_constraint_active_set_lambda_multirates(true,br,opt,nodes,true);
                         }
                         if (constraintConsistent) {

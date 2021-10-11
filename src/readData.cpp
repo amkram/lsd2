@@ -116,7 +116,16 @@ Node** tree2data(istream& tree,Pr* pr,int & s){
     }
     return nodes;
 }
-void readInputDate(InputOutputStream* io, Pr* pr,Node** &nodes,bool& constraintConsistent){
+
+unordered_map<string, int> makeNodeMap(Node** &nodes, int numNodes) {
+    unordered_map<string, int> nodeMap;
+    for (int i = 0; i < numNodes; i++) {
+        nodeMap[nodes[i]->L] = i;
+    }
+    return nodeMap;
+}
+void readInputDate(InputOutputStream* io, Pr* pr, Node** &nodes,bool& constraintConsistent){
+    unordered_map<string, int> nodeMap = makeNodeMap(nodes, pr->nbBranches+1);
     int dateFormat = 2;
     vector<double> kSave;
     vector<double> m1Save;
@@ -146,8 +155,12 @@ void readInputDate(InputOutputStream* io, Pr* pr,Node** &nodes,bool& constraintC
             exit(EXIT_FAILURE);
         }
         for (int i=0;i<ino;i++){
+            if (i % 1000 == 0) {
+                cout << i << '\n';
+            }
             string s=readWord(*(io->inDate),pr->inDateFile);
-            int k = getPosition(nodes,s,0,pr->nbBranches+1);
+
+            int k = getPositionFaster(nodeMap,s);           
             vector<int> mr;
             string ld=s;
             if (k==-1 && (s.compare("mrca")==0 || s.compare("ancestor")==0)){
@@ -159,7 +172,7 @@ void readInputDate(InputOutputStream* io, Pr* pr,Node** &nodes,bool& constraintC
                     if (ss==""){
                         myExit("Empty node label at line ",i+2,"in the date file.\n");
                     }
-                    int k1=getPosition(nodes,ss,0,pr->nbBranches+1);
+                    int k1=getPositionFaster(nodeMap,ss);
                     if (k1!=-1){
                         mr.push_back(k1);
                         if (ld=="") ld=ld+ss;
@@ -187,7 +200,7 @@ void readInputDate(InputOutputStream* io, Pr* pr,Node** &nodes,bool& constraintC
                     newdate = new Date(ld,type,v1,v2,mr);
                 }
                 else{
-                    newdate = new Date(ld,type,v1,v2,k);
+                   newdate = new Date(ld,type,v1,v2,k);
                 }
                 if (k<pr->nbINodes){
                     pr->internalConstraints.push_back(newdate);
@@ -486,6 +499,7 @@ void extrait_outgroup(InputOutputStream *io, Pr* pr, bool useBootstrapTree){
         } else{
             nodes = tree2data(*(io->inBootstrapTree),pr,s);
         }
+
         if (!pr->rooted) {
             nodes=unrooted2rootedS(pr, nodes, s);
         } else{

@@ -10,6 +10,7 @@
 #include <list>
 #include <cstdlib>
 #include <cmath>
+#include <unordered_map>
 #include "stdarg.h"
 #include <algorithm>
 #include "node.h"
@@ -97,6 +98,8 @@ void concatPos(list<int> l1,list<int> &l2);
 void concat(stack<int> & l1,list<int> l2);
 
 void concat(list<int> & l1,stack<int> l2);
+
+int getPositionFaster(unordered_map<string, int> &map, string s);
 
 int getPosition(Node**,string s,int n,int m);
 

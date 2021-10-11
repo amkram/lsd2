@@ -1079,6 +1079,13 @@ void concat(list<int> & l1,stack<int> l2){
     }
 }
 
+int getPositionFaster(unordered_map<string, int> &map, string s) {
+    if (map.find(s) != map.end()) {
+        return map[s];
+    } else {
+        return -1;
+    }
+}
 int getPosition(Node** nodes,string s,int n,int m){
     int i = n;
     int count=0;
